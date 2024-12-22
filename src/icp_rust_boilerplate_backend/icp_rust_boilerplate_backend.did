@@ -1,0 +1,204 @@
+type CreateSACCOPayload = record {
+  contact : text;
+  name : text;
+  email : text;
+  location : text;
+};
+type CustomerFeedback = record {
+  id : nat64;
+  safety : nat8;
+  trip_id : nat64;
+  comment : text;
+  cleanliness : nat8;
+  timestamp : nat64;
+  rating : nat8;
+  punctuality : nat8;
+};
+type CustomerFeedbackPayload = record {
+  safety : nat8;
+  trip_id : nat64;
+  comment : text;
+  cleanliness : nat8;
+  rating : nat8;
+  punctuality : nat8;
+};
+type Driver = record {
+  id : nat64;
+  license_number : text;
+  contact : text;
+  name : text;
+  sacco_id : nat64;
+  assigned_matatu : opt nat64;
+};
+type DriverPerformance = record {
+  id : nat64;
+  month : nat64;
+  compliance_score : float32;
+  trips_completed : nat32;
+  customer_rating : float32;
+  driver_id : nat64;
+  total_revenue : float64;
+};
+type EndTripPayload = record {
+  revenue : float64;
+  trip_id : nat64;
+  passengers : nat32;
+};
+type ExpenseCategory = record {
+  category : text;
+  amount : float64;
+  percentage : float64;
+};
+type FinancialReport = record {
+  id : nat64;
+  expense_breakdown : vec ExpenseCategory;
+  period_end : nat64;
+  period_start : nat64;
+  sacco_id : nat64;
+  created_at : nat64;
+  total_revenue : float64;
+  total_expenses : float64;
+  revenue_breakdown : vec RevenueSource;
+  profit_margin : float64;
+};
+type LocationUpdate = record {
+  id : nat64;
+  latitude : float64;
+  matatu_id : nat64;
+  speed : float64;
+  longitude : float64;
+  timestamp : nat64;
+};
+type LocationUpdatePayload = record {
+  latitude : float64;
+  matatu_id : nat64;
+  speed : float64;
+  longitude : float64;
+};
+type Matatu = record {
+  id : nat64;
+  status : text;
+  plate_number : text;
+  sacco_id : nat64;
+  capacity : nat32;
+  route : text;
+};
+type MatatuAnalytics = record {
+  maintenance_costs : float64;
+  fuel_costs : float64;
+  total_trips : nat64;
+  total_revenue : float64;
+  net_profit : float64;
+};
+type Message = variant {
+  Error : text;
+  InvalidPayload : text;
+  NotFound : text;
+  Success : text;
+};
+type RegisterDriverPayload = record {
+  license_number : text;
+  contact : text;
+  name : text;
+  sacco_id : nat64;
+};
+type RegisterMatatuPayload = record {
+  plate_number : text;
+  sacco_id : nat64;
+  capacity : nat32;
+  route : text;
+};
+type Result = variant { Ok : Driver; Err : Message };
+type Result_1 = variant { Ok : vec Schedule; Err : Message };
+type Result_10 = variant { Ok : LocationUpdate; Err : Message };
+type Result_2 = variant { Ok : SACCO; Err : Message };
+type Result_3 = variant { Ok : Trip; Err : Message };
+type Result_4 = variant { Ok : FinancialReport; Err : Message };
+type Result_5 = variant { Ok : DriverPerformance; Err : Message };
+type Result_6 = variant { Ok : MatatuAnalytics; Err : Message };
+type Result_7 = variant { Ok : RouteOptimization; Err : Message };
+type Result_8 = variant { Ok : Matatu; Err : Message };
+type Result_9 = variant { Ok : CustomerFeedback; Err : Message };
+type RevenueSource = record {
+  source : text;
+  amount : float64;
+  percentage : float64;
+};
+type Route = record {
+  id : nat64;
+  start_point : text;
+  traffic_patterns : vec TrafficPattern;
+  average_passengers : nat32;
+  name : text;
+  distance : float64;
+  peak_hours : vec TimeWindow;
+  price : float64;
+  end_point : text;
+  estimated_time : nat32;
+};
+type RouteOptimization = record {
+  optimal_start_time : nat64;
+  route_id : nat64;
+  estimated_duration : nat32;
+  congestion_level : nat8;
+  alternate_routes : vec Route;
+};
+type SACCO = record {
+  id : nat64;
+  contact : text;
+  name : text;
+  created_at : nat64;
+  email : text;
+  location : text;
+};
+type Schedule = record {
+  id : nat64;
+  status : text;
+  matatu_id : nat64;
+  route_id : nat64;
+  created_at : nat64;
+  end_time : nat64;
+  start_time : nat64;
+  driver_id : nat64;
+};
+type StartTripPayload = record {
+  matatu_id : nat64;
+  driver_id : nat64;
+  route : text;
+};
+type TimeWindow = record {
+  end_hour : nat8;
+  start_hour : nat8;
+  day_of_week : nat8;
+};
+type TrafficPattern = record {
+  average_delay : nat32;
+  time_window : TimeWindow;
+  congestion_level : nat8;
+};
+type Trip = record {
+  id : nat64;
+  status : text;
+  revenue : float64;
+  matatu_id : nat64;
+  passengers : nat32;
+  end_time : opt nat64;
+  start_time : nat64;
+  driver_id : nat64;
+  route : text;
+};
+service : {
+  assign_driver_to_matatu : (nat64, nat64) -> (Result);
+  create_automated_schedule : (nat64, nat64) -> (Result_1);
+  create_sacco : (CreateSACCOPayload) -> (Result_2);
+  end_trip : (EndTripPayload) -> (Result_3);
+  generate_financial_report : (nat64, nat64, nat64) -> (Result_4) query;
+  get_driver_performance : (nat64, nat64) -> (Result_5) query;
+  get_matatu_analytics : (nat64) -> (Result_6) query;
+  optimize_route : (nat64, nat64) -> (Result_7);
+  register_driver : (RegisterDriverPayload) -> (Result);
+  register_matatu : (RegisterMatatuPayload) -> (Result_8);
+  start_trip : (StartTripPayload) -> (Result_3);
+  submit_feedback : (CustomerFeedbackPayload) -> (Result_9);
+  update_location : (LocationUpdatePayload) -> (Result_10);
+}
